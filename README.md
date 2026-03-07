@@ -70,9 +70,9 @@ After=network-online.target nss-user-lookup.target
 User=pi
 Group=pi
 WorkingDirectory=/home/pi/checkService
-Environment="PYTHONPATH=/home/pi/checkService/venv/lib/python3.13/site-packages" ----------- python3.13?
+Environment="PYTHONPATH=/home/pi/checkService/venv/lib/python3.13/site-packages" --- python3.13?
 ExecStartPre=/usr/bin/sleep 10
-ExecStart=/home/pi/checkService/venv/bin/python3.13 /home/pi/checkService/main.py ----------- python3.13?
+ExecStart=/home/pi/checkService/venv/bin/python3.13 /home/pi/checkService/main.py --- python3.13?
 
 RestartSec=10
 Restart=always
