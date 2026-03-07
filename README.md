@@ -83,7 +83,7 @@ StandardError=journal
 WantedBy=multi-user.target
 ```
 
-## Настраивам systemD:
+## Настраивам systemD.
 ```
 sudo systemctl daemon-reload
 sudo systemctl enable --now checkService.service
