@@ -1,22 +1,29 @@
 # checkNetService
 Проверка наличия доступа в Интернет и к определенным ресурсам
 
+## Установка пакетов глобально в систему.
+```
 sudo apt-get update
-sudo apt-get install python3-dev libjpeg-dev zlib1g-dev libopenblas-dev (libatomic1)
+sudo apt-get install python3-dev libjpeg-dev zlib1g-dev libopenblas-dev
+sudo apt-get install libatomic1 -- обычно это не нужно
+```
 
+## Создаем папку для проекта и виртуальное окружение.
+```
 mkdir checkService
 cd checkService
 python -m venv venv
 source venv/bin/activate
-(deactivate)
+(deactivate -- для выхода из виртуального окружения)
+```
 
-pip list
-Package Version
-------- -------
-pip     25.1.1
-
+## Устанавливаем библиотеки внутри виртуального окружения.
+```
 pip install flask requests matplotlib apscheduler
+```
 
+Версии бибилотек:
+```
 pip list
 Package            Version
 ------------------ -----------
@@ -46,15 +53,15 @@ six                1.17.0
 tzlocal            5.3.1
 urllib3            2.6.3
 Werkzeug           3.1.6
+```
 
+## Добавляем сервис в systemD.
 
-Добавляем сервисы в systemD
-Работаем от pi
+Работаем от пользователя pi, поэтому права на папку пользователя менять не нужно (drwx------). Создаем файл /etc/systemd/system/checkService.service
 
-Для простого испытания достаточно - python3 main.py
+(Для простого ручного испытания достаточно - python3 main.py)
 
-sudo nano /etc/systemd/system/checkService.service (python3.13?):
-
+```
 [Unit]
 Description=checkService
 After=network-online.target nss-user-lookup.target
@@ -63,9 +70,9 @@ After=network-online.target nss-user-lookup.target
 User=pi
 Group=pi
 WorkingDirectory=/home/pi/checkService
-Environment="PYTHONPATH=/home/pi/checkService/venv/lib/python3.13/site-packages"
+Environment="PYTHONPATH=/home/pi/checkService/venv/lib/python3.13/site-packages" ----------- python3.13?
 ExecStartPre=/usr/bin/sleep 10
-ExecStart=/home/pi/checkService/venv/bin/python3.13 /home/pi/checkService/main.py
+ExecStart=/home/pi/checkService/venv/bin/python3.13 /home/pi/checkService/main.py ----------- python3.13?
 
 RestartSec=10
 Restart=always
@@ -74,22 +81,11 @@ StandardError=journal
 
 [Install]
 WantedBy=multi-user.target
+```
 
-Настраивам systemD:
-
+## Настраивам systemD:
+```
 sudo systemctl daemon-reload
 sudo systemctl enable --now checkService.service
 systemctl status checkService.service
-
-Если от Пи, то права на папку менять нне нужно.
-ls -l
-total 4
-drwx------ 13 pi pi 4096 Mar  6 12:25 pi
-Если от Пи, то права на папку менять нне нужно.
-
-/checkService $ ls -l
-total 20
--rw-rw-r-- 1 pi pi  277 Mar  6 12:26 config.json
--rw-rw-r-- 1 pi pi 6471 Mar  6 12:27 main.py
-drwxrwxr-x 2 pi pi 4096 Mar  6 12:24 static
-drwxrwxr-x 6 pi pi 4096 Mar  6 11:57 venv
+```
