@@ -1,6 +1,7 @@
 # checkNetService
 Проверка наличия доступа в Интернет и к определенным ресурсам
 
+![Alt text](https://github.com/username/repository/raw/main/path/to/image.png)
 
 ## Настройка выполнена для устройства RaspberryPi.  
 - Плата: Raspberry Pi 2 Model B
