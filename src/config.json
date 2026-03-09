@@ -1,9 +1,11 @@
 {
+    "server_location": "Unknown Location",
     "check_interval_minutes": 1,
     "retention_hours": 72,
+    "threshold_attempts": 3,
     "targets": [
         {"name": "Google.com", "url": "https://www.google.com"},
         {"name": "Supabase.com", "url": "https://supabase.com"},
-        {"name": "Triolcorp.eu", "url": "https://triolcort.eu"}
+        {"name": "Triolcorp.com", "url": "https://triolcort.com"}
     ]
 }
