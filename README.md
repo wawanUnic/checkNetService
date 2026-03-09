@@ -73,7 +73,7 @@ Werkzeug           3.1.6
 
 Работаем от пользователя pi, поэтому права на папку пользователя менять не нужно (drwx------). Создаем файл /etc/systemd/system/checkService.service
 
-(Для простого ручного испытания достаточно - python3 main.py)
+(Для простого ручного испытания достаточно - python main.py)
 
 ```
 [Unit]
@@ -103,3 +103,7 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now checkService.service
 systemctl status checkService.service
 ```
+
+![Alt text](pics/photo_2026-03-09_22-28-44.jpg)
+
+![Alt text](pics/photo_2026-03-09_22-28-30.jpg)
