@@ -27,7 +27,7 @@ def load_config():
 
 config = load_config()
 MAX_POINTS = config['retention_hours'] * 60
-THRESHOLD = config.get('threshold_attempts', 3) # Читаем порог из конфига
+THRESHOLD = config.get('threshold_attempts', 3)
 targets = config['targets']
 LOCATION = config.get('server_location', 'Default Server')
 
@@ -35,12 +35,11 @@ LOCATION = config.get('server_location', 'Default Server')
 data_store = {t['name']: deque(maxlen=MAX_POINTS) for t in targets}
 
 # state_tracker хранит текущий статус и сколько раз он подтвердился подряд
-# Структура: { "Name": {"last_status": 0/1, "count": 0, "displayed_status": 0/1} }
 state_tracker = {
     t['name']: {
         "last_status": None, 
         "count": 0, 
-        "displayed_status": 0 # Начинаем с офлайна или можно инициализировать первым чеком
+        "displayed_status": 0 
     } for t in targets
 }
 
@@ -48,17 +47,29 @@ app = Flask(__name__)
 
 def check_availability():
     timestamp = datetime.now()
+    # "Вежливый" заголовок: представляемся как мониторинг
+    headers = {
+        'User-Agent': 'TriolCorp-Network-Monitor/1.0 (Availability Check)'
+    }
+    
     for target in targets:
         name = target['name']
         try:
-            response = requests.get(target['url'], timeout=5)
-            current_check = 1 if response.status_code == 200 else 0
+            # Используем HEAD для минимизации нагрузки
+            response = requests.head(target['url'], timeout=10, headers=headers, allow_redirects=True)
+            
+            # Если метод HEAD не разрешен сервером, используем облегченный GET
+            if response.status_code == 405:
+                response = requests.get(target['url'], timeout=10, headers=headers, stream=True)
+            
+            # Проверка на успешный код ответа (200-299)
+            current_check = 1 if response.ok else 0
         except:
             current_check = 0
 
         tracker = state_tracker[name]
 
-        # Логика фильтрации дребезга (debounce logic)
+        # Логика фильтрации дребезга
         if current_check == tracker['last_status']:
             tracker['count'] += 1
         else:
@@ -69,15 +80,12 @@ def check_availability():
         if tracker['count'] >= THRESHOLD:
             tracker['displayed_status'] = current_check
 
-        # В историю для графика пишем только подтвержденный статус
+        # В историю для графика пишем подтвержденный статус
         data_store[name].append((timestamp, tracker['displayed_status']))
 
 scheduler = BackgroundScheduler()
 scheduler.add_job(func=check_availability, trigger="interval", minutes=config['check_interval_minutes'])
 scheduler.start()
-
-# --- Остальная часть кода (generate_plot и index) остается почти такой же ---
-# Единственное изменение в index: берем статус из последнего значения data_store
 
 def generate_plot():
     plt.style.use('dark_background')
@@ -110,7 +118,6 @@ def generate_plot():
 def index():
     plot_url = generate_plot()
     
-    # Проверяем последний статус по всем таргетам
     all_online = True
     for name in data_store:
         if data_store[name] and data_store[name][-1][1] == 0:
@@ -120,7 +127,6 @@ def index():
     uptime_text = "System Operational" if all_online else "Issues Detected"
     status_color = "#28a745" if all_online else "#dc3545"
 
-    # HTML код из вашего примера (без изменений)
     html = f'''
     <!DOCTYPE html>
     <html lang="ru">
